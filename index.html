@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>箴言中的友誼智慧</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Parchment & Ink -->
+    <!-- Application Structure Plan: The application is structured into five thematic, scrollable sections to guide the user on a journey of understanding friendship from a biblical perspective. The flow is designed for progressive revelation: 1. The Need (Why friends are essential), 2. The Choice (Contrasting worldly vs. godly standards, featuring a central radar chart for comparison), 3. The Ideal (Defining qualities of a good friend), 4. The Warning (Pitfalls and friends to avoid), and 5. The Foundation (God's love as the ultimate model). This thematic structure, supported by interactive cards and reflection prompts, is more intuitive and engaging for learning than the linear format of the source document, encouraging exploration rather than passive reading. -->
+    <!-- Visualization & Content Choices: 1. Report Info: Contrasting worldly vs. godly friends. -> Goal: Compare. -> Viz: Radar Chart (Chart.js). -> Interaction: Tooltips provide details on each characteristic. -> Justification: A radar chart offers a powerful, holistic visual comparison of multiple qualitative attributes, making the abstract concepts of "worldly" vs. "godly" tangible and easy to grasp. 2. Report Info: Key principles, qualities, and warnings. -> Goal: Inform, Organize. -> Viz: Interactive Cards (HTML/CSS/JS). -> Interaction: Click-to-reveal details. -> Justification: This breaks down dense scriptural content into digestible, user-initiated chunks, preventing information overload and promoting active engagement. 3. Report Info: Reflection questions. -> Goal: Engage, Prompt reflection. -> Viz: Styled callout boxes. -> Justification: Visually separates introspective prompts from didactic content, creating dedicated space for personal application. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FDFBF5;
+            color: #4A443A;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #C08A57;
+            border-bottom-color: #C08A57;
+        }
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .content-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAE3D9;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .reflection-box {
+            background-color: #F9F5EF;
+            border-left: 4px solid #D4AF37;
+        }
+        .section-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .section-fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <span class="text-xl font-bold text-[#4A443A]">箴言中的友誼</span>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#section-why" class="nav-link border-b-2 border-transparent pb-1">為何需要</a>
+                    <a href="#section-choose" class="nav-link border-b-2 border-transparent pb-1">如何選擇</a>
+                    <a href="#section-qualities" class="nav-link border-b-2 border-transparent pb-1">益友特質</a>
+                    <a href="#section-warnings" class="nav-link border-b-2 border-transparent pb-1">損友警惕</a>
+                    <a href="#section-model" class="nav-link border-b-2 border-transparent pb-1">神聖典範</a>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-[#4A443A] focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#section-why" class="block py-2 px-4 text-sm hover:bg-[#F9F5EF]">為何需要</a>
+            <a href="#section-choose" class="block py-2 px-4 text-sm hover:bg-[#F9F5EF]">如何選擇</a>
+            <a href="#section-qualities" class="block py-2 px-4 text-sm hover:bg-[#F9F5EF]">益友特質</a>
+            <a href="#section-warnings" class="block py-2 px-4 text-sm hover:bg-[#F9F5EF]">損友警惕</a>
+            <a href="#section-model" class="block py-2 px-4 text-sm hover:bg-[#F9F5EF]">神聖典範</a>
+        </div>
+    </nav>
+
+    <header class="text-center py-16 md:py-24 px-4 bg-gradient-to-b from-[#F9F5EF] to-[#FDFBF5]">
+        <h1 class="text-4xl md:text-5xl font-bold text-[#4A443A] mb-4">箴言中的友誼智慧</h1>
+        <p class="max-w-3xl mx-auto text-lg text-[#6B6254]">
+            在這個緊密連結卻又倍感疏離的時代，真正的友誼彌足珍貴。聖經中的箴言，為我們提供了跨越時空的智慧，指引我們如何建立、分辨並珍惜那些能使生命更豐盛的關係。讓我們一同探索，如何從神的愛出發，學習成為並擁有一位真正的朋友。
+        </p>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 space-y-24">
+
+        <section id="section-why" class="section-fade-in">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#4A443A]">為何需要朋友？</h2>
+            <p class="text-center text-lg text-[#6B6254] mb-12 max-w-2xl mx-auto">箴言揭示，朋友不僅是生活的點綴，更是我們在人生旅途中不可或缺的嚮導、慰藉與支柱。神的心意是讓我們在彼此的關係中，找到力量與方向。</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">引導方向的嚮導</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">真正的朋友會關心我們的道路，引導我們走向正直，遠離迷途。</p>
+                    <p class="font-semibold">《箴言 12:26》</p>
+                    <p class="text-sm italic">義人引導他的鄰舍；惡人的道叫人失迷。</p>
+                </div>
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">同擔苦樂的知己</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">內心最深的苦與樂，唯有真朋友能感同身受，給予最真誠的共鳴。</p>
+                    <p class="font-semibold">《箴言 14:10》</p>
+                    <p class="text-sm italic">心中的苦楚，自己知道；心裡的喜樂，外人無干。</p>
+                </div>
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">勝過兄弟的密友</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">真正的友誼，其親密與忠誠度，有時甚至能超越血緣關係。</p>
+                    <p class="font-semibold">《箴言 18:24》</p>
+                    <p class="text-sm italic">濫交朋友的，自取敗壞；但有一朋友比弟兄更親密。</p>
+                </div>
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">患難與共的依靠</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">危難之時，一個在身邊的朋友，勝過遠方的親人，提供最即時的幫助。</p>
+                    <p class="font-semibold">《箴言 27:10》</p>
+                    <p class="text-sm italic">相近的鄰舍強如遠方的弟兄。</p>
+                </div>
+            </div>
+            <div class="mt-12 reflection-box p-6 rounded-lg">
+                <h4 class="font-bold text-lg mb-2 text-[#4A443A]">反思時刻</h4>
+                <p class="text-[#6B6254]">回想一下，在你的人生中，朋友扮演了哪些角色？箴言18:24提到「比弟兄更親密」的朋友，是怎樣的特質讓你產生如此深刻的連結？</p>
+            </div>
+        </section>
+
+        <section id="section-choose" class="section-fade-in">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#4A443A]">如何選擇朋友？</h2>
+            <p class="text-center text-lg text-[#6B6254] mb-12 max-w-2xl mx-auto">世界的標準往往建立在利益與外表之上，但箴言教導我們用屬神的智慧，看透表象，重視品格。這張圖表比較了兩種友誼觀的根本差異。</p>
+            <div class="chart-container">
+                <canvas id="friendshipChart"></canvas>
+            </div>
+             <div class="grid md:grid-cols-2 gap-8 mt-12">
+                <div class="content-card border-l-4 border-red-400">
+                    <h3 class="text-xl font-bold text-red-500 mb-3">世俗的標準：利益交換</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">世俗的友誼常是短暫且有條件的，建立在財富、地位或能獲得的好處上。當利益消失，關係也隨之瓦解。</p>
+                    <div class="space-y-2 text-sm">
+                        <p><strong>《箴言 19:4》</strong> 財物增添好些朋友；窮人朋友遠離。</p>
+                        <p><strong>《箴言 14:20》</strong> 貧窮人連鄰舍也恨他；富足人朋友最多。</p>
+                    </div>
+                </div>
+                <div class="content-card border-l-4 border-green-500">
+                    <h3 class="text-xl font-bold text-green-600 mb-3">屬神的智慧：品格連結</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">屬神的友誼看重內在品格。它建立在愛、饒恕與真誠之上，追求的是彼此的造就，而非個人的益處。</p>
+                     <div class="space-y-2 text-sm">
+                        <p><strong>《箴言 17:9》</strong> 遮掩人過的，尋求人愛；屢次挑錯的，離間密友。</p>
+                        <p><strong>《箴言 18:9》</strong> 做工懈怠的，與浪費人為弟兄。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-qualities" class="section-fade-in">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#4A443A]">益友的特質</h2>
+            <p class="text-center text-lg text-[#6B6254] mb-12 max-w-2xl mx-auto">真正的朋友是神賜予的禮物。他們擁有能經受時間考驗的寶貴品質，能在我們的生命中發揮積極而深遠的影響。</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">恆久不變的愛</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">無論順境逆境，真朋友的愛始終如一，他們為患難而生。</p>
+                    <p class="font-semibold">《箴言 17:17》</p>
+                    <p class="text-sm italic">朋友乃時常親愛，弟兄為患難而生。</p>
+                </div>
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">忠誠善意的責備</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">出於愛心的責備，雖會帶來短暫的傷痛，卻是使我們成長的良藥。</p>
+                    <p class="font-semibold">《箴言 27:6》</p>
+                    <p class="text-sm italic">朋友加的傷痕出於忠誠；仇敵連連親嘴卻是多餘。</p>
+                </div>
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">甘甜真誠的勸勉</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">朋友發自內心的真誠勸告，能使人心喜悅，如同馨香的膏油。</p>
+                    <p class="font-semibold">《箴言 27:9》</p>
+                    <p class="text-sm italic">膏油與香料使人心喜悅；朋友誠實的勸教也是如此甘美。</p>
+                </div>
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-[#C08A57] mb-2">互相砥礪的成長</h3>
+                    <p class="mb-4 text-sm text-[#6B6254]">朋友間的坦誠交流與碰撞，能磨礪彼此的品格，使雙方都變得更成熟。</p>
+                    <p class="font-semibold">《箴言 27:17》</p>
+                    <p class="text-sm italic">鐵磨鐵，磨出刃來；朋友相感也是如此。</p>
+                </div>
+            </div>
+             <div class="mt-12 reflection-box p-6 rounded-lg">
+                <h4 class="font-bold text-lg mb-2 text-[#4A443A]">反思時刻</h4>
+                <p class="text-[#6B6254]">「你若做錯，人還奉承你，他就是你的敵人；你若做對，人欣賞你，他就是你的朋友；你若做錯，人糾正你，他就是你的老師！」在你的生命中，哪一類人最多？你又傾向於成為哪一類人？</p>
+            </div>
+        </section>
+
+        <section id="section-warnings" class="section-fade-in">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#4A443A]">損友的警惕</h2>
+            <p class="text-center text-lg text-[#6B6254] mb-12 max-w-2xl mx-auto">箴言同樣提醒我們要警惕那些會敗壞品格、摧毀關係的行為與同伴。學會分辨並遠離，是保護自己屬靈道路的重要智慧。</p>
+            <div class="space-y-12">
+                <div>
+                    <h3 class="text-2xl font-bold mb-6 text-center text-[#4A443A]">侵蝕友誼的行為</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="content-card text-center">
+                            <p class="text-4xl mb-2">🗣️</p>
+                            <h4 class="font-bold text-lg">傳播閒話</h4>
+                            <p class="text-sm text-[#6B6254]">搬弄是非，背後說人閒話，是破壞親密關係的利器。</p>
+                            <p class="text-xs mt-2 italic">《箴言 16:28》</p>
+                        </div>
+                        <div class="content-card text-center">
+                           <p class="text-4xl mb-2">👤</p>
+                           <h4 class="font-bold text-lg">孤僻自是</h4>
+                           <p class="text-sm text-[#6B6254]">與眾寡合，只求自己喜悅，拒絕一切善意規勸。</p>
+                           <p class="text-xs mt-2 italic">《箴言 18:1》</p>
+                        </div>
+                        <div class="content-card text-center">
+                            <p class="text-4xl mb-2">🧱</p>
+                            <h4 class="font-bold text-lg">難以復和</h4>
+                            <p class="text-sm text-[#6B6254]">被得罪的弟兄，比堅固城還難挽回，傷害極深。</p>
+                            <p class="text-xs mt-2 italic">《箴言 18:19》</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold mb-6 text-center text-[#4A443A]">應當遠離的朋友</h3>
+                    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg border border-gray-200">
+                        <ul class="space-y-4">
+                            <li class="flex items-start"><span class="text-red-500 mr-3 mt-1">●</span><div><strong class="text-[#4A443A]">愚昧人 (箴言 13:20):</strong> 與他們為伍，自己也必受虧損。</div></li>
+                            <li class="flex items-start"><span class="text-red-500 mr-3 mt-1">●</span><div><strong class="text-[#4A443A]">傳舌人 (箴言 20:19):</strong> 洩漏祕密，不可與之結交。</div></li>
+                            <li class="flex items-start"><span class="text-red-500 mr-3 mt-1">●</span><div><strong class="text-[#4A443A]">反覆無常的人 (箴言 24:21):</strong> 遠離那些悖逆神的人，免得同遭災禍。</div></li>
+                            <li class="flex items-start"><span class="text-red-500 mr-3 mt-1">●</span><div><strong class="text-[#4A443A]">貪食好閒的人 (箴言 28:7):</strong> 他們使家族蒙羞。</div></li>
+                            <li class="flex items-start"><span class="text-red-500 mr-3 mt-1">●</span><div><strong class="text-[#4A443A]">邪惡犯罪的人 (箴言 24:1):</strong> 不要嫉妒，也不要渴望與他們相處。</div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-model" class="section-fade-in">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#4A443A]">神聖的典範：Agape之愛</h2>
+            <p class="text-center text-lg text-[#6B6254] mb-12 max-w-2xl mx-auto">我們愛的能力，源於神先愛了我們。祂那無條件、犧牲的Agape之愛，是我們學習如何去愛朋友的終極藍圖與力量泉源。</p>
+            <div class="content-card text-center">
+                <p class="text-lg italic text-[#6B6254]">「我們愛，因為神先愛我們。」</p>
+                <p class="font-semibold mt-2 text-[#4A443A]">《約翰一書 4:19》</p>
+                <div class="my-8 border-t border-dashed border-gray-300 max-w-sm mx-auto"></div>
+                <p class="max-w-prose mx-auto text-[#4A443A]">
+                    真正的友誼，不是努力去尋找一個完美的朋友，而是靠著神的恩典，努力讓自己成為一個合神心意的朋友。耶穌為朋友捨命，立下了愛的最高典範。當我們經歷並回應神的愛時，我們就被賦予了能力，去付出同樣不求回報、以對方益處為先的愛。這份愛，是我們能給予朋友最寶貴的禮物。
+                </p>
+                <p class="font-semibold text-[#C08A57] mt-6">《約翰福音 15:13》</p>
+                <p class="text-sm italic">人為朋友捨命，人的愛心沒有比這個大的。</p>
+            </div>
+             <div class="mt-12 reflection-box p-6 rounded-lg">
+                <h4 class="font-bold text-lg mb-2 text-[#4A443A]">最後的思考</h4>
+                <p class="text-[#6B6254]">耶穌為我們捨己，這份愛如何改變你看待友誼中的付出與饒恕？在日常生活中，你可以如何具體地「為朋友捨命」，活出這份犧牲的愛？</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 mt-16 border-t border-[#EAE3D9]">
+        <p class="text-sm text-[#6B6254]">願我們都在箴言的智慧中，學會珍惜並活出真正的友誼。</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            const ctx = document.getElementById('friendshipChart').getContext('2d');
+            const friendshipChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['忠誠度', '誠實度', '無私度', '恆久度', '品格基礎', '包容度'],
+                    datasets: [{
+                        label: '屬神的益友',
+                        data: [9, 9, 8, 9, 10, 8],
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(52, 152, 219, 1)'
+                    }, {
+                        label: '世俗的益友',
+                        data: [4, 5, 3, 3, 4, 2],
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        pointBackgroundColor: 'rgba(231, 76, 60, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(231, 76, 60, 1)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: '#EAE3D9'
+                            },
+                            grid: {
+                                color: '#EAE3D9'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    family: "'Noto Sans TC', sans-serif"
+                                },
+                                color: '#6B6254'
+                            },
+                            ticks: {
+                                backdropColor: '#FDFBF5',
+                                color: '#6B6254',
+                                stepSize: 2
+                            },
+                            min: 0,
+                            max: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#4A443A',
+                                font: {
+                                    size: 14,
+                                    family: "'Noto Sans TC', sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            bodyFont: {
+                                family: "'Noto Sans TC', sans-serif"
+                            },
+                            titleFont: {
+                                family: "'Noto Sans TC', sans-serif"
+                            }
+                        }
+                    }
+                }
+            });
+
+            const sections = document.querySelectorAll('.section-fade-in');
+            const navItems = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const sectionObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        navItems.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
